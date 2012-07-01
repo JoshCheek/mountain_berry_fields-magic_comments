@@ -1,10 +1,16 @@
 require 'rcodetools/xmpfilter'
+require 'mountain_berry_fields'
 
 class MountainBerryFields
   class Test
 
-
+    # test strategy for magic comments:
+    #
+    # 1 + 2 # => 3
+    #
+    # Like that, but if the output isn't 3, then this will fail your test
     class MagicComments
+
       Strategy.register :magic_comments, self
       include Strategy
 

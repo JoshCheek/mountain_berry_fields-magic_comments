@@ -13,13 +13,6 @@ default_cucumber_opts = "features --format pretty --tags ~@not-implemented"
 Cucumber::Rake::Task.new(:cucumber)      { |t| t.cucumber_opts = default_cucumber_opts + " --tags ~@wip" }
 Cucumber::Rake::Task.new('cucumber:wip') { |t| t.cucumber_opts = default_cucumber_opts + " --tags @wip" }
 
-
-task rspec_must_be_100_percent: :rspec do
-  percent = SimpleCov.result.covered_percent
-  # need to fix this to still write results even though it fails
-  fail "\e[31mYo, dawg some of your shit isn't getting tested, only %0.2f%%\e[0m" % percent unless percent == 100
-end
-
-task default: [:rspec_must_be_100_percent, :cucumber]
+task default: [:rspec, :cucumber]
 
 
