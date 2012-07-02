@@ -15,7 +15,7 @@ class MountainBerryFields
       include Strategy
 
       Deject self
-      dependency(:syntax_checker_class) { SyntaxChecker }
+      dependency(:syntax_checker_class) { RubySyntaxChecker }
 
       def syntax_checker
         @syntax_checker ||= syntax_checker_class.new code_to_test
