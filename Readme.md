@@ -1,4 +1,4 @@
-![travis CI status](https://secure.travis-ci.org/JoshCheek/mountain_berry_fields-magic_comments.png?branch=master)
+[![Build Status](https://secure.travis-ci.org/JoshCheek/mountain_berry_fields-magic_comments.png?branch=master)](http://travis-ci.org/JoshCheek/mountain_berry_fields-magic_comments)
 
 # Magic Comments strategy for Mountain Berry Fields
 
