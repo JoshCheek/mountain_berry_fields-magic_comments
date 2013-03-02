@@ -56,14 +56,9 @@ Feature: Testing with :magic_comments
     More shit here
     """
     When I run "mountain_berry_fields Readme.mountain_berry_fields.md"
-    Then it exits with a status of 1, and a stderr of:
+    Then it exits with a status of 1, and a stderr including:
     """
     FAILURE: basic addition
-    -:1: syntax error, unexpected '}'
-        } + { # => 12
-         ^
-
-    original file:
-        } + { # => 12
+    -:1: syntax error
     """
     And I do not see the file "Readme.md"

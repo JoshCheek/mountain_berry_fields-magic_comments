@@ -18,6 +18,11 @@ Then /^it exits with a status of (\d+), and a stderr of:$/ do |status, stderr|
   last_cmdline.stderr.chomp.should == interpret_curlies(stderr).chomp
 end
 
+Then /^it exits with a status of (\d+), and a stderr including:$/ do |status, stderr|
+  last_cmdline.exitstatus.should == status.to_i
+  last_cmdline.stderr.chomp.should include interpret_curlies(stderr).chomp
+end
+
 Then /^it prints nothing to (stdout|stderr)$/ do |descriptor|
   last_cmdline.send(descriptor).should == ''
 end
