@@ -85,14 +85,9 @@ class MountainBerryFields
       # /\ABlah\,\ blah\,\ blah,\.*and so on\z/.
 
       def ellipses_to_wildcards_regex(line)
-        pattern = line.split(ELLIPSIS_REGEX, -1)
-        # Yes, there must be six backslashes in that second argument to gsub if
-        # it's going to work the way it's supposed to work...
-        Regexp.new(
-          '\\A' +
-          (pattern.map {|piece| piece.gsub(/(\W)/, '\\\\\\1')}).join('.*') +
-          '\\z'
-        )
+        content_pieces = line.split(ELLIPSIS_REGEX, -1)
+                             .map(&Regexp.method(:escape))
+        /\A#{content_pieces.join('.*?')}\Z/
       end
 
       def normalize(line)
