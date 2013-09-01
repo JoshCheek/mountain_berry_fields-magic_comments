@@ -10,6 +10,7 @@ class MountainBerryFields
     #
     # Like that, but if the output isn't 3, then this will fail your test
     class MagicComments
+      ELLIPSIS_REGEX = /\s+\.{3,}\s*/
 
       Strategy.register :magic_comments, self
       include Strategy
@@ -52,7 +53,7 @@ class MountainBerryFields
 
       def pass?
         each_line_pair do |expected_line, actual_line|
-          return false unless normalize(expected_line) == normalize(actual_line)
+          return false unless lines_match?(expected_line, actual_line)
         end
         true
       end
@@ -67,8 +68,31 @@ class MountainBerryFields
           end
       end
 
-      def lines_match?(line1, line2)
-        normalize(line1) == normalize(line2)
+      def lines_match?(expected, actual)
+        if ELLIPSIS_REGEX.match(expected)
+          expected_regex = ellipses_to_wildcards_regex(normalize(expected))
+          expected_regex.match(actual)
+        else
+          normalize(expected) == normalize(actual)
+        end
+      end
+
+      # magic for " ..." in magic comments
+      #
+      # This translates a string with groups of three or more dots into a
+      # regular expression with the dot groups replaced by wildcards.
+      # For example, "Blah, blah, blah, ... and so on" is translated into
+      # /\ABlah\,\ blah\,\ blah,\.*and so on\z/.
+
+      def ellipses_to_wildcards_regex(line)
+        pattern = line.split(ELLIPSIS_REGEX, -1)
+        # Yes, there must be six backslashes in that second argument to gsub if
+        # it's going to work the way it's supposed to work...
+        Regexp.new(
+          '\\A' +
+          (pattern.map {|piece| piece.gsub(/(\W)/, '\\\\\\1')}).join('.*') +
+          '\\z'
+        )
       end
 
       def normalize(line)
