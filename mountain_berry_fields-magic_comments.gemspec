@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "mountain_berry_fields-magic_comments"
   gem.require_paths = ["lib"]
-  gem.version       = '1.0.1'
+  gem.version       = '1.0.2'
 
   gem.add_runtime_dependency 'rcodetools',            '~> 0.8.5.0'
   gem.add_runtime_dependency 'deject',                '~> 0.2.2'
