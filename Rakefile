@@ -2,17 +2,21 @@
 require 'bundler/gem_tasks'
 
 
+desc 'Run specs'
 task :rspec do
-  require 'rspec'
-  Dir.glob("spec/**/*_spec.rb").each { |filename| require File.expand_path filename }
-  RSpec::Core::Runner.run []
+  sh 'rspec'
 end
 
-require 'cucumber/rake/task'
-default_cucumber_opts = "features --format pretty --tags ~@not-implemented"
-Cucumber::Rake::Task.new(:cucumber)      { |t| t.cucumber_opts = default_cucumber_opts + " --tags ~@wip" }
-Cucumber::Rake::Task.new('cucumber:wip') { |t| t.cucumber_opts = default_cucumber_opts + " --tags @wip" }
+desc 'Run non-work-in-progress cukes'
+task :cucumber do
+  sh 'cucumber --tag ~@wip'
+end
+
+namespace :cucumber do
+  desc 'Run work-in-progress cukes'
+  task :wip do
+    sh 'cucumber --tag @wip'
+  end
+end
 
 task default: [:rspec, :cucumber]
-
-
