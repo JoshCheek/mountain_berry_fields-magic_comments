@@ -1,7 +1,7 @@
 require 'bundler/setup'
 require 'surrogate/rspec'
 require 'mountain_berry_fields'
-require 'mountain_berry_fields/test/magic_comments.rb'
+require 'mountain_berry_fields/autoloaded_tests/magic_comments.rb'
 
 # this should go into Surrogate itself
 class RSpec::Expectations::ExpectationTarget
