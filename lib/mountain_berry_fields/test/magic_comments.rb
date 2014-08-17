@@ -1,4 +1,4 @@
-require 'rcodetools/xmpfilter'
+require 'seeing_is_believing/binary'
 require 'mountain_berry_fields'
 
 class MountainBerryFields
@@ -18,32 +18,31 @@ class MountainBerryFields
       Deject self
       dependency(:syntax_checker_class) { RubySyntaxChecker }
 
+      def sib_options
+        @options ||= SeeingIsBelieving::Binary::ParseArgs.call([], "").tap do |options|
+          options[:stdin] = "" # this one is not in key for w/e reason
+          set_option = lambda do |key, value|
+            options.key?(key) || raise("CANNOT SET KEY #{key.inspect}, IS NOT IN #{options.keys.inspect}" )
+            options[key] = value
+          end
+          set_option.call :errors,             Array.new # ignore any errors from calling w/ no args
+          set_option.call :program,            code_to_test
+          set_option.call :xmpfilter_style,    true
+          set_option.call :timeout,            10 # seconds
+          set_option.call :alignment_strategy, SeeingIsBelieving::Binary::AlignLine
+        end
+      end
+
       def syntax_checker
         @syntax_checker ||= syntax_checker_class.new code_to_test
       end
 
+      def annotater
+        @annotater ||= SeeingIsBelieving::Binary::AddAnnotations.new code_to_test, sib_options
+      end
+
       def result
-        @result ||= Rcodetools::XMPFilter.run(
-          code_to_test,
-          :interpreter => "ruby",
-          :options => [],
-          :min_codeline_size => 50,
-          :libs => [],
-          :evals => [],
-          :include_paths => [],
-          :dump => nil,
-          :wd => nil,
-          :warnings => false,
-          :use_parentheses => true,
-          :column => nil,
-          :output_stdout => true,
-          :test_script => nil,
-          :test_method => nil,
-          :detect_rct_fork => false,
-          :use_rbtest => false,
-          :detect_rbtest => false,
-          :execute_ruby_tmpfile => false
-        ).join
+        @result ||= annotater.call
       end
 
       def syntax_error_message
@@ -52,6 +51,7 @@ class MountainBerryFields
       end
 
       def pass?
+        return false unless syntax_checker.valid?
         each_line_pair do |expected_line, actual_line|
           return false unless lines_match?(expected_line, actual_line)
         end
@@ -60,12 +60,12 @@ class MountainBerryFields
 
       def failure_message
         syntax_error_message ||
-          each_line_pair do |expected_line, actual_line|
+          each_line_pair.map { |expected_line, actual_line|
             next if lines_match? expected_line, actual_line
-            return "Output had extra line: #{actual_line}\n" unless expected_line
-            return "Input had extra line: #{expected_line}\n" unless actual_line
+            next "Output had extra line: #{actual_line}\n"  unless expected_line
+            next "Input had extra line: #{expected_line}\n" unless actual_line
             return "Expected: #{expected_line.gsub /^\s+/, ''}\nActual:   #{actual_line.lstrip.gsub /^\s+/, ''}\n" if expected_line != actual_line
-          end
+        }.compact.join("")
       end
 
       def lines_match?(expected, actual)
@@ -98,7 +98,8 @@ class MountainBerryFields
       end
 
       def each_line_pair
-        result_lines = lines result
+        return to_enum :each_line_pair unless block_given?
+        result_lines       = lines result
         code_to_test_lines = lines code_to_test
 
         while result_lines.any? || code_to_test_lines.any?

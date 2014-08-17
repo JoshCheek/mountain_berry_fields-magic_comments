@@ -57,13 +57,16 @@ RSpec.describe test_class::MagicComments do
     it 'identifies missing output' do
       magic_comments = described_class.new("puts 1\nputs 2\n")
       magic_comments.pass?
-      expect(magic_comments.failure_message).to eq "Output had extra line: # >> 1\n"
+      expect(magic_comments.failure_message).to eq "Output had extra line: \n"\
+                                                   "Output had extra line: # >> 1\n"\
+                                                   "Output had extra line: # >> 2\n"
     end
 
     it 'identifies missing input' do
-      magic_comments = described_class.new("puts 1\n# >> 1\n# >> 2\n")
+      magic_comments = described_class.new("puts 1\n\n# >> 1\n# >> 2\n# >> 3\n")
       magic_comments.pass?
-      expect(magic_comments.failure_message).to eq "Input had extra line: # >> 2\n"
+      expect(magic_comments.failure_message).to eq "Input had extra line: # >> 2\n"\
+                                                   "Input had extra line: # >> 3\n"
     end
   end
 end
